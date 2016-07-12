@@ -1,0 +1,60 @@
+<div class="x_panel">
+    <div class="x_title">
+        <h2>
+            Nodes Table
+            <small>basic table subtitle</small>
+        </h2>
+        <ul class="nav navbar-right panel_toolbox">
+            <li>
+                <a class="collapse-link"> <i class="fa fa-chevron-up"></i>
+                </a>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"> <i class="fa fa-wrench"></i>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li>
+                        <a href="#">Settings 1</a>
+                    </li>
+                    <li>
+                        <a href="#">Settings 2</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a class="close-link">
+                    <i class="fa fa-close"></i>
+                </a>
+            </li>
+        </ul>
+        <div class="clearfix"></div>
+    </div>
+    <div class="x_content">
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Hot</th>
+                    <th>AddTime</th>
+                </tr>
+            </thead>
+
+
+            <tbody>
+
+            {#range $index, $elem := .List#}
+                <tr>
+                    <th scope="row">{#$index#}</th>
+                    <td><a href="/admin/node/edit/{#$elem.Uniqid#}">{#$elem.Title#}</a></td>
+                    <td>{#$elem.Hot#}</td>
+                    <td>{#$elem.AddTime#}</td>
+                </tr>
+            {#end#}
+
+            </tbody>
+        </table>
+        {#template "themes/admin/1/paginator.html" .#}
+    </div>
+</div>

@@ -1,0 +1,95 @@
+<script>
+// Defaining angular applcation.
+
+var mainApp = angular.module( "add", []);
+
+mainApp.directive('ckeditor', function() {
+    return {
+        require : '?ngModel',
+        link : function(scope, element, attrs, ngModel) {
+            var ckeditor = CKEDITOR.replace(element[0], {
+
+            });
+            if (!ngModel) {
+                return;
+            }
+            ckeditor.on('instanceReady', function() {
+                ckeditor.setData(ngModel.$viewValue);
+            });
+            ckeditor.on('pasteState', function() {
+                scope.$apply(function() {
+                    ngModel.$setViewValue(ckeditor.getData());
+                });
+            });
+            ngModel.$render = function(value) {
+                ckeditor.setData(ngModel.$viewValue);
+            };
+        }
+    };
+});
+
+
+
+
+// Controller function and passing $http service and $scope var
+mainApp.controller ("nodeController", function($scope,$http) {
+    //data
+    $scope.title = "{# .node.Title #}";
+    $scope.author = "{# .node.Author #}";
+    $scope.keywords = "{# .node.Keywords #}";
+    $scope.description = "{# .node.Description #}";
+    $scope.content = "{# .node.Content #}";
+    $scope.hot = "{# .node.Hot #}";
+    $scope.addtime = "{# .node.AddTime #}";
+    $scope.uniqid = "{# .node.Uniqid #}";
+    $scope.categorytag = "{# .node.CategoryTag #}";
+
+  
+
+
+  
+
+    // create a blank object to handle from data.
+    $scope.submitForm = function(){
+        // Posting data to php file
+        $http({
+            method  : "POST",
+            url     : "/admin/node/edit/{# .uniqid #}",
+            data :  $.param( { 
+            _xsrf: document.getElementsByName("_xsrf")[0].value, 
+            title: $scope.title, 
+            content: $scope.content, 
+            description: $scope.description, 
+            keywords: $scope.keywords, 
+            uniqid: $scope.uniqid,
+            hot: $scope.hot,
+            addtime: $scope.addtime,
+            categorytag: $scope.categorytag,
+            author: $scope.author,
+            } ), // from md5 object\
+            headers : { "Content-Type" : 'application/x-www-form-urlencoded; charset=UTF-8'  },
+
+        })
+            .success( function( data ) {
+
+                switch ( data.errorCode ){
+                    case 0:
+                        $("#alert").attr("class","col-md-10 col-sm-10 col-xs-12")
+                        $scope.msg = data.msg;
+                        $scope.success = true;
+                        $scope.error = false;
+                        break;
+                    case 1:
+                        $("#alert").attr("class","col-md-10 col-sm-10 col-xs-12")
+                        $scope.msg = data.msg;
+                        $scope.success = false;
+                        $scope.error = true;
+                        break;
+                }
+
+
+            })
+    }
+
+});
+</script>

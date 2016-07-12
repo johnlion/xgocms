@@ -1,0 +1,57 @@
+{#if gt .paginator.PageNums 1#}
+<nav>
+    <ul class="pagination pull-left">
+
+        <li>
+            <a href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+
+
+        {#if .paginator.HasPrev#}
+        <li><a href="{#.paginator.PageLinkFirst#}">{#i18n .Lang "First Page"#}</a></li>
+        <li><a href="{#.paginator.PageLinkPrev#}">&lt;</a></li>
+        {#else#}
+        <li class="disabled"><a>{#i18n .Lang "First Page"#}</a></li>
+        <li class="disabled"><a>&lt;</a></li>
+        {#end#}
+
+        {#range $index, $page := .paginator.Pages#}
+        <li{#if $.paginator.IsActive .#} class="active"{#end#}>
+        <a href="{#$.paginator.PageLink $page#}">{#$page#}</a>
+        </li>
+        {#end#}
+
+        {#if .paginator.HasNext#}
+        <li><a href="{#.paginator.PageLinkNext#}">&gt;</a></li>
+        <li><a href="{#.paginator.PageLinkLast#}">{#i18n .Lang "last_page"#}</a></li>
+        {#else#}
+        <li class="disabled"><a>&gt;</a></li>
+        <li class="disabled"><a>{#i18n .Lang "last_page"#}</a></li>
+        {#end#}
+
+
+        <li>
+            <a href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+            <div class="col-md-2 col-sm-2 col-xs-12 form-group pull-right top_search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="跳转页面" id="gopage">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" id="go">Go!</button>
+                            </span>
+                </div>
+            </div>
+        </li>
+    </ul>
+</nav>
+{#end#}
+
+<script>
+    $("#go").click(function(){
+        location.href = "?p=" + $("#gopage").val()
+    });
+
+</script>
