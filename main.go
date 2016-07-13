@@ -2,14 +2,16 @@ package main
 
 import (
 	"github.com/astaxie/beego"
-	_ "github.com/xgocms/routers"
+	_ "github.com/johnlion/xgocms/routers"
 
-	"github.com/xgocms/setting"
+	"github.com/johnlion/xgocms/setting"
 
-	"github.com/xgocms/controllers/auth"
+	"github.com/johnlion/xgocms/controllers/auth"
 
-	"github.com/xgocms/controllers/admin/node"
-	
+	"github.com/johnlion/xgocms/controllers/admin/node"
+
+	"github.com/johnlion/xgocms/controllers"
+	"github.com/johnlion/xgocms/controllers/admin"
 )
 
 // We have to call a initialize function manully
@@ -62,10 +64,16 @@ func main() {
 	//beego.Router("/admin/node/add", &node.AddController{})
 	//beego.Router("/admin/node/list:page([0-9]+)", &node.ListController{})
 	*/
-	// [example 2]
+	//xample 2]
+	beego.ErrorController( &controllers.ErrorController{} )
+
+	index := new( admin.IndexController )
+	beego.Router("/admin/index", index )
+
+
 	login := new ( auth.LoginController  )
 	beego.Router( "/auth/login", login, "get:Get_Login;post:Post_Login"  )
-	beego.Router("/logout", login, "get:Logout")
+	beego.Router("/auth/logout", login, "get:Logout")
 
 	register := new ( auth.RegisterController  )
 	beego.Router("/register", register, "get:Get" )
@@ -74,7 +82,6 @@ func main() {
 	beego.Router( "/admin/node/add", admin_node, "get:Get_add;post:Post_add"  )
 	beego.Router( "/admin/node/edit/:Uniqid", admin_node, "get:Get_edit;post:Post_edit"  )
 	beego.Router( "/admin/node/list", admin_node, "get:Get_list"  )
-
 
 
 	beego.Run()

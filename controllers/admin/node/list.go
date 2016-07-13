@@ -10,7 +10,7 @@ type Stats struct{
 }
 
 func (this *NodeController) Get_list(){
-
+	this.IsLogin()
 	this.Data["page_title"] = "Node";
 	this.Data["page_via_title"] = "Add Form";
 	this.Data["xsrfdata"]= template.HTML(this.BaseController.XSRFFormHTML())

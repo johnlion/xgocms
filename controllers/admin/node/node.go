@@ -1,8 +1,8 @@
 package node
 
 import (
-	"github.com/xgocms/controllers"
-	"github.com/xgocms/extensions/services"
+	"github.com/johnlion/xgocms/controllers"
+	"github.com/johnlion/xgocms/extensions/services"
 
 )
 

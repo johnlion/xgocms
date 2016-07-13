@@ -5,12 +5,14 @@ import (
 )
 
 func ( this *NodeController ) Get_add(){
+	this.IsLogin()
 	this.Data["page_title"] = "Node";
 	this.Data["page_via_title"] = "Add Form";
 	this.TplName =  this.GetThemesAdmin() + "controllers/node/add.html"
 }
 
 func ( this *NodeController ) Post_add(){
+	this.IsLogin()
 	form := Form{}
 	if err := this.ParseForm( &form ); err != nil{
 		// do code

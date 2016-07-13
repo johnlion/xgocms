@@ -2,20 +2,29 @@ package node
 
 import (
 	"gopkg.in/mgo.v2/bson"
+	"github.com/johnlion/xgocms/models/utils"
 )
 
 func ( this *NodeController ) Get_edit(){
+	this.IsLogin()
 	this.Data["page_title"] = "Node";
-	this.Data["page_via_title"] = "Edit Form";
+	this.Data["page_via_title"] = "Edit Form xxx";
 
 	this.TplName =  this.GetThemesAdmin() + "controllers/node/edit.html"
 	this.Data["uniqid"] = this.Ctx.Input.Param(":Uniqid")
+
 	node := this.get_Single()
+
+	if node.Uniqid == 0 {
+		this.Abort("401")
+	}
+
+
 	this.Data["node"] = node
 }
 
 func ( this *NodeController ) Post_edit(){
-
+	this.IsLogin()
 	form := EditForm{}
 
 	if err := this.ParseForm( &form ); err != nil{
@@ -40,9 +49,12 @@ func ( this *NodeController ) Post_edit(){
  * get single data
  */
 func (  this *NodeController ) get_Single() Node{
-	this.Uniqid = this.Ctx.Input.Param(":Uniqid")
+	this.Uniqid =utils.StrToInt( this.Ctx.Input.Param(":Uniqid") )
+
+
 	var result Node
 	err := this.DB.C( "node" ).Find(bson.M{"uniqid":  this.Uniqid   }).One(&result)
+
 	if err ==nil {
 		return result
 	}else{

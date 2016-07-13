@@ -1,11 +1,11 @@
 package auth
 
 import (
-	"github.com/xgocms/controllers"
-	"github.com/xgocms/extensions/services"
+	"github.com/johnlion/xgocms/controllers"
+	"github.com/johnlion/xgocms/extensions/services"
+	"github.com/johnlion/xgocms/models/auth"
+	"github.com/johnlion/xgocms/models/utils"
 	"github.com/astaxie/beego"
-	"github.com/xgocms/models/auth"
-
 )
 
 type LoginController struct{
@@ -17,9 +17,12 @@ type LoginController struct{
 
 
 func ( this *LoginController ) Get_Login(){
+	if  this.GetSession( "Authorized" ) == true{
+		this.Redirect( "/admin/index", 302 )
+	}
+
 	this.Layout = ""
 	this.TplName =  this.GetThemesAdmin() + "controllers/auth/login.html"
-
 
 	// no login
 
@@ -36,19 +39,33 @@ func ( this *LoginController ) Post_Login(){
 		// do code
 	}
 
-	// crypt
-	cryptStr := this.GetMD5Hash( beego.AppConfig.String("secret_key") + form.Username +  form.Password )
-	beego.Debug( "cryptStr is " , cryptStr )
-
-	// check login
-	this.CheckLogin( cryptStr )
 
 
-	auth.NewUserBy_Username_Password( form.Username, form.Password )
+	// login
+	userEntity := this.User.Login( form  )
+	if userEntity.Username ==""{
+		//do code
+		this.Data["json"] = map[string]interface{}{ "errorCode": 0, "msg":"用户名称或密码错误!" }
+		this.ServeJSON()
+	}else{
+		this.SetSession( "Authorized", true )
+		this.SetSession( "Username", userEntity.Username )
+		this.SetSession( "UserLevel", this.GetMD5Hash( userEntity.Username + userEntity.Password   ) )
+		this.SetSession( "Uniqid", this.GetMD5Hash(  utils.ToStr( userEntity.Uniqid ) + userEntity.Username ) )
+		beego.Debug( "debug ...", this.GetSession( "Username" ) )
+
+		this.Data["json"] = map[string]interface{}{ "errorCode": 0, "msg":"登录成功!请稍等登录中 . . .　" }
+		this.ServeJSON()
+	}
+
+
+
+
 }
 
 func ( this *LoginController) Logout(){
-
+	this.DestroySession()
+	this.Redirect( "/auth/login",302 )
 }
 
 

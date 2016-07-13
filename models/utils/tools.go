@@ -411,3 +411,12 @@ func IsMatchHost(uri string) bool {
 
 	return true
 }
+
+func StrToInt( str string ) int{
+	s ,err := strconv.Atoi( str )
+	if err == nil {
+		return s
+	}else{
+		return 0
+	}
+}

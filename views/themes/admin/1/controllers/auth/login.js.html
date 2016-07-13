@@ -1,0 +1,52 @@
+<script>
+// Defaining angular applcation.
+
+var mainApp = angular.module( "login", []);
+
+
+// Controller function and passing $http service and $scope var
+mainApp.controller ("loginController", function($scope,$http) {
+    // create a blank object to handle from data.
+    $scope.submitForm = function(){
+        // Posting data to php file
+        $http({
+            method  : "POST",
+            url     : "/auth/login",
+            data :  $.param( { 
+            _xsrf: document.getElementsByName("_xsrf")[0].value, 
+            username: $scope.username, 
+            password: $scope.password,
+            logintype: document.getElementsByName("logintype")[0].value,  
+            } ), // from md5 object\
+            headers : { "Content-Type" : 'application/x-www-form-urlencoded; charset=UTF-8'  },
+
+        })
+        .success( function( data ) {
+            switch ( data.errorCode ){
+                case 0:
+                    $("#alert").attr("class","col-md-12 col-sm-12 col-xs-12")
+                    $scope.msg = data.msg;
+                    $scope.success = true;
+                    $scope.error = false;
+                    setTimeout('delayer()', 5000);
+                    break;
+                case 1:
+                    $("#alert").attr("class","col-md-12 col-sm-12 col-xs-12")
+                    $scope.msg = data.msg;
+                    $scope.success = false;
+                    $scope.error = true;
+                    break;
+            }
+
+
+        })
+    }
+
+});
+
+
+function delayer(){
+    window.location = "/admin/index";
+}
+
+</script>

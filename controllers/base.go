@@ -2,17 +2,17 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"github.com/xgocms/extensions/services"
+	"github.com/johnlion/xgocms/extensions/services"
 	"html/template"
 
-	"github.com/xgocms/models/utils"
-	"github.com/xgocms/setting"
+	"github.com/johnlion/xgocms/models/utils"
+	"github.com/johnlion/xgocms/setting"
 	"github.com/beego/i18n"
 	"time"
 	"fmt"
-	"net/url"
+
 	"gopkg.in/mgo.v2"
-	"strconv"
+
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -21,11 +21,11 @@ type BaseController struct{
 	services.Service
 	themesAdmin string
 	i18n.Locale
-	IsLogin bool
+
 	Pagenums int
 	Skip int
 	Postdate string
-	Uniqid string
+	Uniqid int
 	DB *mgo.Database
 
 }
@@ -48,7 +48,23 @@ func (this *BaseController) XSRFFormHTML() string {
 }
 
 func ( this *BaseController ) Prepare(){
+	// conn database
 	this.ConnDatabase()
+
+	// user profile
+	if  this.GetSession( "Authorized" ) == true{
+		profile := map[interface{}]interface{}{
+			"Authorized": this.GetSession( "Authorized" ) ,
+			"Password": this.GetSession( "Password" ) ,
+			"Uniqid": this.GetSession( "Uniqid" ) ,
+			"UserLevel": this.GetSession( "UserLevel" ) ,
+			"Username": this.GetSession( "Username" ) ,
+		}
+		this.Data["profile"] = profile
+	}
+
+
+	// page settings
 	this.Pagenums = 10
 	this.Postdate = time.Now().Format("2006-01-02 15:04:05")
 	this.Data["xsrfdata"]= template.HTML(this.XSRFFormHTML())
@@ -56,6 +72,7 @@ func ( this *BaseController ) Prepare(){
 	this.Data["page_via_title"] = "";
 	this.Data["IsLoginPage"] = false;
 
+	// page layouts
 	this.Layout = this.GetThemesAdmin() +"layout.html"
 	this.LayoutSections = make( map[string]string )
 	this.LayoutSections["Header"] = this.GetThemesAdmin() + "header.html"
@@ -173,58 +190,7 @@ func ( this *BaseController ) SetSkip(){
 	}
 }
 
-func ( this *BaseController ) CheckLoginRedirect( args ...interface{})  bool{
-	var redirect_to string
-	code := 302
-	needLogin := true
-	for _,arg := range args{
-		switch v := arg.( type ) {
-		case bool:
-			needLogin = v
-		case string:
-			// custom redirect url
-			redirect_to = v
-		case int:
-			// custom redirect url
-			code = v
-		}
-	}
-	beego.Debug( "code>>",code )
-	beego.Debug( "needLogin",needLogin )
-	beego.Debug( "redirect_to",redirect_to )
 
-	// if need login then redirect
-	if needLogin && !this.IsLogin{
-		if len( redirect_to )  ==0 {
-			req := this.Ctx.Request
-			scheme := "http"
-			if req.TLS != nil{
-				scheme += "s"
-			}
-			redirect_to = fmt.Sprintf( "%s://%s%s", scheme, req.Host, req.RequestURI )
-		}
-		redirect_to = "/auth/login?to=" + url.QueryEscape( redirect_to )
-		this.Redirect( redirect_to, code )
-		return true
-	}
-
-	// if not need login then redirect
-	if !needLogin && this.IsLogin {
-		if len(redirect_to) == 0 {
-			redirect_to = "/"
-		}
-		this.Redirect(redirect_to, code)
-		return true
-	}
-
-	return false
-
-}
-
-func ( this *BaseController ) GetUniqid() string{
-	uniqid := strconv.FormatInt( time.Now().UnixNano(), 10 )
-	return uniqid
-}
 
 // auto increment id
 func ( this *BaseController ) GetSeq()int{
@@ -241,4 +207,10 @@ func ( this *BaseController ) GetSeq()int{
 		panic(fmt.Errorf("get counter failed:", err.Error()))
 	}
 	return doc.Seq
+}
+
+func ( this *BaseController ) IsLogin(){
+	if  this.GetSession( "Authorized" ) != true{
+		this.Redirect( "/auth/login", 302 )
+	}
 }
